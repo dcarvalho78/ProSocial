@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Jobs · prosocial{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Jobs</h1>
+<div class="list-group">
+{% for j in jobs %}
+  <a href="/jobs/{{ j.id }}/" class="list-group-item list-group-item-action">
+    <div class="d-flex w-100 justify-content-between">
+      <h2 class="h6 mb-1">{{ j.title }}</h2>
+      <small class="text-muted">{{ j.created_at|date:"Y-m-d" }}</small>
+    </div>
+    <small class="text-muted">{{ j.company.name }} · {{ j.location }} · {{ j.get_employment_type_display }}</small>
+  </a>
+{% empty %}<p class="text-muted">No jobs found.</p>{% endfor %}
+</div>
+{% endblock %}

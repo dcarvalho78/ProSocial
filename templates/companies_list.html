@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Companies · prosocial{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Companies</h1>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+{% for c in companies %}
+  <div class="col">
+    <a class="text-decoration-none" href="/companies/{{ c.slug }}/">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6">{{ c.name }}</h2>
+          <div class="small text-muted">{{ c.industry }} · {{ c.location }}</div>
+          <p class="mt-2 mb-0 text-body-secondary">{{ c.description|truncatechars:120 }}</p>
+        </div>
+      </div>
+    </a>
+  </div>
+{% empty %}<p class="text-muted">No companies found.</p>{% endfor %}
+</div>
+{% endblock %}

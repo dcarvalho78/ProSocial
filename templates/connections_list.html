@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My connections · prosocial{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">My connections</h1>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'connection_requests' %}">Requests</a>
+</div>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+  {% for person, link in people %}
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="fw-semibold"><a href="/profile/{{ person.username }}/">{{ person.get_full_name|default:person.username }}</a></div>
+          <div class="small text-muted">{{ person.headline }}</div>
+          <div class="small text-muted">{{ person.location }}</div>
+          <form method="post" action="{% url 'connection_remove' person.username %}" class="mt-2">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">No connections yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

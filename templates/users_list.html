@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}People · prosocial{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">People</h1>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+{% for u in users %}
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="fw-semibold"><a href="/profile/{{ u.username }}/">{{ u.get_full_name|default:u.username }}</a></div>
+        <div class="small text-muted">{{ u.headline }}</div>
+        <div class="small text-muted">{{ u.location }}</div>
+        <div class="small mt-2">
+          {% for s in u.skills.all|slice:":5" %}
+            <span class="badge text-bg-secondary">{{ s.name }}</span>
+          {% empty %}
+            <span class="text-muted">No skills</span>
+          {% endfor %}
+        </div>
+        {% if u.is_available_for_hire %}
+          <span class="badge text-bg-success mt-2">Available{% if u.available_from %} from {{ u.available_from }}{% endif %}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% empty %}<p class="text-muted">No users found.</p>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}{% if post %}Edit post{% else %}Create post{% endif %} · prosocial{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">{% if post %}Edit post{% else %}Create post{% endif %}</h1>
+<form method="post" enctype="multipart/form-data" class="vstack gap-3">
+  {% csrf_token %}
+  {% include "partials/form_errors.html" %}
+  <div>
+    <label class="form-label">Content</label>
+    {{ form.content|add_class:"form-control" }}
+  </div>
+  <div>
+    <label class="form-label">Company (optional)</label>
+    {{ form.company|add_class:"form-select" }}
+    <div class="form-text">Only companies where you are an admin.</div>
+  </div>
+  <div>
+    <label class="form-label">Image</label>
+    {{ form.image|add_class:"form-control" }}
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Save</button>
+    <a class="btn btn-outline-secondary" href="{% url 'feed' %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

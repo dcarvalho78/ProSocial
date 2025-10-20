@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Feed · prosocial{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Feed</h1>
+<div class="vstack gap-3">
+  {% for post in posts %}
+  <article id="post-{{ post.id }}" class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 class="h6 mb-1">
+            {{ post.author.get_full_name|default:post.author.username }}
+            {% if post.company %}<span class="text-muted"> @ {{ post.company.name }}</span>{% endif %}
+          </h2>
+          <small class="text-muted">{{ post.created_at|date:"Y-m-d H:i" }}</small>
+        </div>
+      </div>
+      <p class="mt-2 mb-0">{{ post.content }}</p>
+    </div>
+  </article>
+  {% empty %}<p class="text-muted">No posts yet.</p>{% endfor %}
+</div>
+{% endblock %}

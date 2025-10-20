@@ -1,0 +1,22 @@
+{# Use in profile_detail.html, requires: user_obj in context #}
+{% if request.user.is_authenticated and request.user.username != user_obj.username %}
+  {% with me=request.user other=user_obj %}
+    {% comment %}We infer state by checking existing connections queryset if available in context{% endcomment %}
+    {% if connection_state == 'connected' %}
+      <form method="post" action="{% url 'connection_remove' user_obj.username %}" class="d-inline">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-outline-danger" type="submit">Connected · Remove</button>
+      </form>
+    {% elif connection_state == 'pending_out' %}
+      <button class="btn btn-sm btn-outline-secondary" disabled>Pending</button>
+      <a class="btn btn-sm btn-outline-secondary ms-1" href="{% url 'connection_requests' %}">Requests</a>
+    {% elif connection_state == 'pending_in' %}
+      <a class="btn btn-sm btn-success" href="{% url 'connection_requests' %}">Respond to request</a>
+    {% else %}
+      <form method="post" action="{% url 'connection_add' user_obj.username %}" class="d-inline">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-outline-primary" type="submit">Connect</button>
+      </form>
+    {% endif %}
+  {% endwith %}
+{% endif %}

@@ -1,0 +1,55 @@
+# Django / Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.mo
+
+# Environment
+.env
+.env.*
+*.env
+
+# Virtualenv
+venv/
+env/
+.venv/
+env.bak/
+venv.bak/
+
+# Django static & media
+staticfiles/
+static/
+media/
+build/
+dist/
+
+# IDEs / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+
+# Tests / coverage
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Migrations cache
+*/migrations/__pycache__/
