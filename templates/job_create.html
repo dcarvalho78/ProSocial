@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h1>Job erstellen</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Jobtitel</label>
+            {{ form.title|add_class:"form-control" }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Beschreibung</label>
+            {{ form.description|add_class:"form-control" }}
+        </div>
+
+        <!-- Beschäftigungsstatus Dropdown -->
+        <div class="mb-3">
+            <label for="employment_type" class="form-label">Beschäftigungsstatus</label>
+            <select name="employment_type" id="employment_type" class="form-control">
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+                <option value="Internship">Internship</option>
+                <option value="Working student">Working student</option>
+            </select>
+        </div>
+
+
+
+        <!-- Ergänzung: Company Dropdown (nur eigene Companies) -->
+        <div class="mb-3">
+            <label for="company" class="form-label">Unternehmen</label>
+            <select name="company" id="company" class="form-control">
+                <option value="">-- Wähle dein Unternehmen --</option>
+                {% for company in user_companies %}
+                    <option value="{{ company.id }}">{{ company.name }}</option>
+                {% empty %}
+                    <option disabled>(Du hast noch kein Unternehmen erstellt)</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Skills checkboxes -->
+        <div class="mb-3">
+            <label class="form-label">Fähigkeiten</label><br>
+            {% for skill in skills %}
+                <input type="checkbox" name="skills" value="{{ skill.id }}" id="skill_{{ skill.id }}" class="form-check-input">
+                <label for="skill_{{ skill.id }}" class="form-check-label">{{ skill.name }}</label><br>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Job erstellen</button>
+    </form>
+	
+	</div>
+</div>
+{% endblock %}

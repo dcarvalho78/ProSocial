@@ -1,53 +1,174 @@
 {% extends "base.html" %}
-{% block title %}{{ company.name }} · prosocial{% endblock %}
+
 {% block content %}
-<div class="mb-3">
-  <h1 class="h4 mb-1">{{ company.name }}</h1>
-  <div class="text-muted">{{ company.industry }} · {{ company.location }}</div>
-  <p class="mt-2">{{ company.description }}</p>
-  {% if company.website %}<a class="btn btn-sm btn-outline-primary" href="{{ company.website }}" target="_blank">Website</a>{% endif %}
-</div>
-<ul class="nav nav-tabs" role="tablist">
-  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#posts" type="button">Posts</button></li>
-  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#jobs" type="button">Jobs</button></li>
-  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#people" type="button">People</button></li>
-</ul>
-<div class="tab-content border-start border-end border-bottom p-3">
-  <div class="tab-pane fade show active" id="posts">
-    <div class="vstack gap-3">
-      {% for p in posts %}
-        <article class="card"><div class="card-body">
-          <div class="d-flex justify-content-between">
-            <h3 class="h6 mb-1">{{ p.author.get_full_name|default:p.author.username }}</h3>
-            <small class="text-muted">{{ p.created_at|date:"Y-m-d H:i" }}</small>
+<div class="container-fluid px-0">
+
+  <!-- Header: Avatar & Name -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    {% if company.avatar %}
+      <img src="{{ company.avatar.url }}" alt="{{ company.name }} Avatar" class="rounded-circle avatar-border" style="width:72px;height:72px;object-fit:cover;">
+    {% else %}
+      <div class="rounded-circle d-flex align-items-center justify-content-center avatar-dark text-white" style="width:72px;height:72px;">
+        <i class="bi bi-buildings fs-3"></i>
+      </div>
+    {% endif %}
+    <div>
+      <h1 class="mb-0">{{ company.name }}</h1>
+      <small class="text-muted">Gegründet am {{ company.created_at|date:"d.m.Y" }}</small>
+    </div>
+  </div>
+
+  <!-- Bootstrap Nav Tabs -->
+  <ul class="nav nav-tabs" id="companyTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">About</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="jobs-tab" data-bs-toggle="tab" data-bs-target="#jobs" type="button" role="tab">Jobs</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="employees-tab" data-bs-toggle="tab" data-bs-target="#employees" type="button" role="tab">Employees</button>
+    </li>
+  </ul>
+
+  <div class="tab-content pt-4" id="companyTabsContent">
+
+    <!-- About -->
+    <div class="tab-pane fade show active" id="about" role="tabpanel">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          {% if company.description %}
+            <p class="mb-0">{{ company.description|linebreaksbr }}</p>
+          {% else %}
+            <p class="text-muted mb-0">Kein About-Text hinterlegt.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs -->
+    <div class="tab-pane fade" id="jobs" role="tabpanel">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Offene Stellen</h5>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Titel</th>
+                  <th scope="col">Unternehmen</th>
+                  <th scope="col">Typ</th>
+                  <th scope="col">Erforderliche Fähigkeiten</th>
+                  <th scope="col" class="text-center">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for job in company.jobs.all %}
+                  <tr>
+                    <td>{{ job.title }}</td>
+                    <td>{{ job.company.name }}</td>
+                    <td><span class="badge bg-primary">{{ job.employment_type }}</span></td>
+                    <td>
+                      {% for skill in job.required_skills.all %}
+                        <span class="badge bg-secondary me-1">{{ skill.name }}</span>
+                      {% empty %}
+                        <span class="text-muted">Keine Skills</span>
+                      {% endfor %}
+                    </td>
+                    <td class="text-center">
+                      {% if job.created_by == request.user %}
+                        <!-- Nur für den Ersteller -->
+                        <a href="{% url 'job_create' %}?edit={{ job.id }}" class="btn btn-sm btn-outline-secondary me-1">
+                          <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <form method="POST" action="{% url 'job_delete' job.id %}" class="d-inline delete-job-form">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> Delete
+                          </button>
+                        </form>
+                      {% else %}
+                        <!-- Für alle anderen -->
+                        <a href="{% url 'apply_for_job' job.id %}" class="btn btn-sm btn-outline-primary">
+                          <i class="bi bi-send"></i> Bewerben
+                        </a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">Keine Jobs vorhanden.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-          <p class="mb-0">{{ p.content }}</p>
-        </div></article>
-      {% empty %}<p class="text-muted">No posts yet.</p>{% endfor %}
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="tab-pane fade" id="jobs">
-    <div class="list-group">
-      {% for j in jobs %}
-        <a href="/jobs/{{ j.id }}/" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-          <div>
-            <div class="fw-semibold">{{ j.title }}</div>
-            <small class="text-muted">{{ j.location }} · {{ j.get_employment_type_display }}</small>
+
+    <!-- Employees -->
+    <div class="tab-pane fade" id="employees" role="tabpanel">
+      <div class="row g-4">
+        {% if employees %}
+          {% for user in employees %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-light-subtle hover-shadow transition-all">
+                <div class="card-body text-center p-4">
+                  {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="rounded-circle mb-3 avatar-border" style="width:80px;height:80px;object-fit:cover;">
+                  {% else %}
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center avatar-dark text-white mb-3" style="width:80px;height:80px;">
+                      <i class="bi bi-person fs-3"></i>
+                    </div>
+                  {% endif %}
+                  <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                  {% if user.profile.bio %}
+                    <p class="text-muted small mb-3">{{ user.profile.bio|truncatechars:120 }}</p>
+                  {% endif %}
+                  {% if user.profile.skills.all %}
+                    <div class="d-flex flex-wrap justify-content-center gap-1">
+                      {% for skill in user.profile.skills.all %}
+                        <span class="badge bg-secondary">{{ skill.name }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12">
+            <div class="alert alert-light border rounded-4 mb-0">Keine Mitarbeitenden hinterlegt.</div>
           </div>
-          <small class="text-muted">{{ j.created_at|date:"Y-m-d" }}</small>
-        </a>
-      {% empty %}<p class="text-muted">No jobs.</p>{% endfor %}
-    </div>
-  </div>
-  <div class="tab-pane fade" id="people">
-    <div class="row row-cols-1 row-cols-md-2 g-2">
-      {% for u in employees %}
-        <div class="col"><div class="card h-100"><div class="card-body">
-          <div class="fw-semibold">{{ u.get_full_name|default:u.username }}</div>
-          <small class="text-muted">{{ u.headline }}</small>
-        </div></div></div>
-      {% empty %}<p class="text-muted">No employees listed.</p>{% endfor %}
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
+
+<style>
+.hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.avatar-border { border: 3px solid #f8f9fa; }
+.avatar-dark { background: linear-gradient(135deg, #1f1f1f, #3a3a3a); }
+.transition-all { transition: all 0.25s ease-in-out; }
+</style>
+
+<script>
+document.querySelectorAll(".delete-job-form").forEach(form => {
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!confirm("Diesen Job wirklich löschen?")) return;
+    const res = await fetch(form.action, {
+      method: "POST",
+      headers: {"X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value}
+    });
+    if (res.ok) {
+      form.closest("tr").remove();
+    } else {
+      alert("Fehler beim Löschen des Jobs.");
+    }
+  });
+});
+</script>
 {% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+  <h2>Projekt erstellen</h2>
+  <form method="post" enctype="multipart/form-data" class="mt-3">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Titel</label>
+      {{ form.title|add_class:"form-control" }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Beschreibung</label>
+      {{ form.description|add_class:"form-control" }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">URL</label>
+      {{ form.url|add_class:"form-control" }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Bild</label>
+      {{ form.image|add_class:"form-control" }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Skills</label>
+      <div class="border rounded p-2" style="max-height:200px; overflow-y:auto;">
+        {{ form.skills }}
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Speichern</button>
+  </form>
+</div>
+</div>
+{% endblock %}

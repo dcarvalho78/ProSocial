@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load extras %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title mb-3">
+          <i class="bi bi-pencil-square me-2"></i>Profil bearbeiten
+        </h4>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Avatar upload -->
+          <div class="mb-3">
+            <label for="avatar" class="form-label">Avatar</label>
+            {% if user.profile.avatar %}
+              <img src="{{ user.profile.avatar.url }}" class="rounded-circle border mb-2" width="72" height="72" alt="Avatar">
+            {% else %}
+              <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=6c757d&color=ffffff&size=72&bold=true"
+                   class="rounded-circle border mb-2" width="72" height="72" alt="Avatar Placeholder">
+            {% endif %}
+            <input type="file" name="avatar" id="avatar" class="form-control mt-2">
+          </div>
+
+          <!-- Verfügbarkeit -->
+          <div class="mb-3">
+            <label for="availability" class="form-label">Verfügbarkeit:</label>
+            <select name="availability" id="availability" class="form-control">
+              <option value="True" {% if user.profile.availability %}selected{% endif %}>Verfügbar</option>
+              <option value="False" {% if not user.profile.availability %}selected{% endif %}>Nicht verfügbar</option>
+            </select>
+          </div>
+
+          <!-- Fähigkeiten -->
+          <h5 class="card-title mt-4">Fähigkeiten:</h5>
+          <div class="mb-3">
+            {% for skill in all_skills %}
+              <div class="form-check">
+                <input 
+                  class="form-check-input"
+                  type="checkbox"
+                  name="skills"
+                  value="{{ skill.id }}"
+                  id="skill_{{ skill.id }}"
+                  {% if skill in user.profile.skills.all %}checked{% endif %}
+                >
+                <label class="form-check-label" for="skill_{{ skill.id }}">
+                  {{ skill.name }}
+                </label>
+              </div>
+            {% empty %}
+              <p class="text-muted">Keine Fähigkeiten verfügbar.</p>
+            {% endfor %}
+          </div>
+
+          <!-- Unternehmen -->
+          <div class="mb-3">
+            <label for="company" class="form-label">Unternehmen:</label>
+            <select name="company" id="company" class="form-control">
+              <option value="">-- Kein Unternehmen ausgewählt --</option>
+              {% for company in all_companies %}
+                <option value="{{ company.id }}" {% if company == user.profile.company %}selected{% endif %}>
+                  {{ company.name }}
+                </option>
+              {% empty %}
+                <option disabled>(Keine Unternehmen vorhanden)</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Bio -->
+          <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <textarea name="bio" id="bio" class="form-control" rows="4">{{ user.profile.bio }}</textarea>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'profile' user.username %}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Zurück
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save me-1"></i> Änderungen speichern
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

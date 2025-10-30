@@ -1,55 +1,80 @@
-# Django / Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*.sqlite3
-*.log
-*.pot
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.mo
+*$py.class
 
-# Environment
-.env
-.env.*
-*.env
+# C extensions
+*.so
 
-# Virtualenv
-venv/
-env/
-.venv/
-env.bak/
-venv.bak/
-
-# Django static & media
-staticfiles/
-static/
-media/
+# Distribution / packaging
+.Python
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# IDEs / OS
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-*.bak
-*.tmp
-
-# Tests / coverage
-.coverage
-.tox/
-nosetests.xml
-coverage.xml
-*.cover
-htmlcov/
-
-# Pip
+# Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Migrations cache
-*/migrations/__pycache__/
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+static/
+.env
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# VS Code / PyCharm
+.vscode/
+.idea/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+media/
+
+data.py
+data_fast.py
+delete.py
+table.py
+database.txt
+server.log

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="col-md-5">
+  <div class="card hero p-5">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="card-body position-relative">
+      <h4 class="mb-4 display-4"><i class="bi bi-person-plus-fill me-1"></i> Signup</h4>
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <input class="form-control border-secondary" placeholder="Username" name="username" required>
+        </div>
+        <div class="mb-3">
+          <input type="email" class="form-control border-secondary" placeholder="E-Mail" name="email">
+        </div>
+        <div class="mb-3">
+          <input type="password" class="form-control border-secondary" placeholder="Password" name="password" required>
+        </div>
+        <button class="btn btn-primary w-100 gradient-5">Konto erstellen</button>
+      </form>
+      <div class="text-center small mt-3">
+        Schon ein Konto? <a href="{% url 'login' %}">Zum Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

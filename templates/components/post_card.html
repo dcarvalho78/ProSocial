@@ -1,0 +1,255 @@
+{% load extras %}
+<div class="card card-elevated mb-3" data-post-id="{{ post.id }}">
+   <div class="card-body">
+
+      <!-- Header -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+
+         <!-- Avatar + Name -->
+         <div class="d-flex align-items-center">
+            {% if post.job and post.job.company.avatar %}
+               <img src="{{ post.job.company.avatar.url }}" 
+                    alt="{{ post.job.company.name }}"
+                    class="rounded-circle me-3 shadow-sm" width="48" height="48" style="object-fit:cover;">
+            {% elif post.user.profile.avatar %}
+               <img src="{{ post.user.profile.avatar.url }}" 
+                    alt="{{ post.user.username }}" 
+                    class="rounded-circle me-3 shadow-sm" width="48" height="48" style="object-fit:cover;">
+            {% else %}
+               <div class="rounded-circle d-flex align-items-center justify-content-center text-white bg-secondary me-3"
+                    style="width:48px;height:48px;">
+                  <i class="bi bi-person"></i>
+               </div>
+            {% endif %}
+
+            <div>
+               {% if post.job %}
+                  <a href="{% url 'company_detail' post.job.company.id %}"
+                     class="fw-semibold text-decoration-none text-dark">
+                     {{ post.job.company.name }}
+                  </a><br>
+                  <small class="text-muted">{{ post.created|date:"d.m.Y H:i" }}</small>
+               {% else %}
+                  <a href="{% url 'profile' post.user.username %}" class="fw-semibold text-decoration-none">
+                     @{{ post.user.username }}
+                  </a>
+                  <div class="text-muted small">
+                     {{ post.created|date:"d.m.Y H:i" }}
+                  </div>
+               {% endif %}
+            </div>
+         </div>
+
+         <!-- Buttons Rechts -->
+         <div class="d-flex align-items-center gap-2">
+            {% if not post.job %}
+               {% if request.user != post.user %}
+                  <button class="btn btn-outline-primary btn-sm"
+                          data-action="toggle-follow"
+                          data-username="{{ post.user.username }}">
+                     {% if request.user in post.user.profile.followers.all %}
+                        <i class="bi bi-person-dash me-1"></i> Entfolgen
+                     {% else %}
+                        <i class="bi bi-person-plus me-1"></i> Folgen
+                     {% endif %}
+                  </button>
+               {% endif %}
+
+               {% if request.user == post.user %}
+                  <button class="btn btn-sm btn-outline-warning"
+                          data-action="edit-post"
+                          data-post-id="{{ post.id }}">
+                     Edit
+                  </button>
+
+                  <button class="btn btn-sm btn-outline-danger"
+                          data-action="delete-post"
+                          data-post-id="{{ post.id }}">
+                     Delete
+                  </button>
+               {% endif %}
+            {% endif %}
+         </div>
+      </div>
+
+      <!-- Original Repost -->
+      {% if post.original_post %}
+         <div class="card border p-2 bg-light-subtle">
+            <div class="small text-muted">
+               <i class="bi bi-repeat"></i> {{ post.user.username }} hat einen Beitrag von
+               <a href="{% url 'profile' post.original_post.user.username %}">
+                  @{{ post.original_post.user.username }}
+               </a> geteilt
+            </div>
+            <div class="mt-2">{{ post.original_post.content|linebreaksbr|linkify }}</div>
+            {% if post.original_post.image %}
+               <img src="{{ post.original_post.image.url }}" class="img-fluid rounded mt-2" alt="Original Bild">
+            {% endif %}
+         </div>
+
+      {% else %}
+         <!-- Post Content -->
+    
+         <div class="post-content">
+         {% if post.job %}
+               <!-- 💼 Job-Post -->
+               <h5 class="fw-semibold">{{ post.job.title }}</h5>
+               <p>{{ post.job.description|truncatechars:300 }}</p>
+               <p><span class="badge bg-primary">{{ post.job.employment_type }}</span></p>
+               <div class="mb-2">
+               {% for skill in post.job.required_skills.all %}
+                  <span class="badge bg-secondary me-1">{{ skill.name }}</span>
+               {% endfor %}
+               </div>
+
+         {% elif post.project %}
+               <!-- 🚀 Projekt-Post -->
+               {% if post.project.image %}
+               <img src="{{ post.project.image.url }}"
+                     alt="{{ post.project.title }}"
+                     class="img-fluid rounded shadow-sm mb-3">
+               {% endif %}
+
+               <h5 class="fw-semibold">{{ post.project.title }}</h5>
+               <p>{{ post.project.description|linebreaksbr }}</p>
+
+               {% if post.project.url %}
+               <p>
+                  <a href="{{ post.project.url }}" target="_blank"
+                     class="text-primary text-decoration-none fw-semibold">
+                     🌐 {{ post.project.url }}
+                  </a>
+               </p>
+               {% endif %}
+
+               {% if post.project.skills.all %}
+               <div class="d-flex flex-wrap gap-1 mt-1">
+                  {% for skill in post.project.skills.all %}
+                     <span class="badge bg-secondary">{{ skill.name }}</span>
+                  {% endfor %}
+               </div>
+               {% endif %}
+
+         {% else %}
+               <!-- ✏️ Normaler Post -->
+               {{ post.content|linebreaksbr }}
+         {% endif %}
+         </div>
+      {% endif %}
+
+      {% if post.youtube_id %}
+         {{ post.content|youtube_embed }}
+      {% endif %}
+
+      {% if post.image %}
+         <img src="{{ post.image.url }}" class="img-fluid rounded mt-2" alt="Post Bild">
+      {% endif %}
+
+      {% if post.audio %}
+         <audio controls style="width:100%; margin-top:10px;">
+            <source src="{{ post.audio.url }}" type="audio/webm">
+            Dein Browser unterstützt keine Audio-Wiedergabe.
+         </audio>
+      {% endif %}
+
+      {% if post.hashtags.all %}
+         <div class="mt-2 d-flex flex-wrap gap-1">
+            {% for t in post.hashtags.all %}
+               <a class="badge bg-gradient text-decoration-none"
+                  href="{% url 'hashtag' t.name %}">#{{ t.name }}</a>
+            {% endfor %}
+         </div>
+      {% endif %}
+
+      <!-- Footer Buttons -->
+      <div class="d-flex align-items-center justify-content-between mt-3">
+         <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-like"
+                    data-action="like-post"
+                    data-id="{{ post.id }}">
+               <i class="bi bi-heart-fill me-1"></i>
+               <span class="like-count">{{ post.like_count }}</span>
+            </button>
+
+            <button class="btn btn-sm btn-outline-secondary"
+                    data-action="repost"
+                    data-post-id="{{ post.id }}">
+               <i class="bi bi-reply"></i> Repost
+            </button>
+
+            <button class="btn btn-sm btn-outline-secondary"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#replies-{{ post.id }}">
+               <i class="bi bi-chat-dots-fill me-1"></i>
+               Reply (<span class="reply-count">{{ post.reply_count }}</span>)
+            </button>
+
+            <button class="btn btn-sm btn-outline-secondary"
+                    data-action="show-likers"
+                    data-id="{{ post.id }}"
+                    data-bs-toggle="modal"
+                    data-bs-target="#likersModal-{{ post.id }}">
+               <i class="bi bi-people-fill me-1"></i>People who like this
+            </button>
+         </div>
+      </div>
+
+      <!-- Replies -->
+      <div class="collapse mt-3" id="replies-{{ post.id }}">
+         <div class="vstack gap-2" data-replies-list>
+            {% for reply in post.replies.all %}
+               {% include "components/reply_item.html" %}
+            {% endfor %}
+         </div>
+
+         <form class="mt-2" data-reply-form>
+            {% csrf_token %}
+            <div class="input-group">
+               <textarea name="content" rows="1" class="form-control"
+                         placeholder="@erwähne jemanden…"></textarea>
+               <button class="btn btn-primary">
+                  <i class="bi bi-reply-fill me-1"></i>Antworten
+               </button>
+            </div>
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+         </form>
+      </div>
+   </div>
+</div>
+
+<!-- Likers Modal -->
+<div class="modal fade" id="likersModal-{{ post.id }}" tabindex="-1" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title">
+               <i class="bi bi-heart-fill me-2 text-danger"></i>Likes
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+         </div>
+         <div class="modal-body">
+            <div class="small" data-likers-list>Wird geladen…</div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal-{{ post.id }}" tabindex="-1" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title">Post bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+         </div>
+         <div class="modal-body">
+            <textarea class="form-control" rows="4" data-edit-content>{{ post.content }}</textarea>
+            <input type="file" class="form-control mt-2" data-edit-image>
+         </div>
+         <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button class="btn btn-primary" data-action="save-edit" data-post-id="{{ post.id }}">Speichern</button>
+         </div>
+      </div>
+   </div>
+</div>

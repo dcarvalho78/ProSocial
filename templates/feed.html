@@ -1,23 +1,132 @@
 {% extends "base.html" %}
-{% block title %}Feed · prosocial{% endblock %}
+{% load static %}
+{% load extras %}
+
 {% block content %}
-<h1 class="h4 mb-3">Feed</h1>
-<div class="vstack gap-3">
-  {% for post in posts %}
-  <article id="post-{{ post.id }}" class="card">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <h2 class="h6 mb-1">
-            {{ post.author.get_full_name|default:post.author.username }}
-            {% if post.company %}<span class="text-muted"> @ {{ post.company.name }}</span>{% endif %}
-          </h2>
-          <small class="text-muted">{{ post.created_at|date:"Y-m-d H:i" }}</small>
-        </div>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <!-- Composer -->
+    <div class="hero p-5 p-lg-6 mb-5">
+      <div class="orb o1"></div>
+      <div class="orb o2"></div>
+      <div class="card-body">
+        <form id="postForm" class="d-flex flex-column gap-2" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ post_form.content }}
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+
+              <input type="file" name="image" id="imageInput" accept="image/*" class="d-none">
+              <button type="button" class="btn btn-light btn-icon" id="imageBtn">
+                <i class="bi bi-image"></i>
+              </button>
+
+              <button type="button" id="goLiveBtn" class="btn btn-danger btn-icon">
+                GO live
+              </button>
+
+            </div>
+            <button class="btn btn-primary">
+              <i class="bi bi-send-fill me-1"></i> Post
+            </button>
+          </div>
+
+          <!-- Live Panel -->
+          <div id="livePanel" style="display:none;margin-top:16px;">
+            <video id="localVideo" autoplay playsinline muted style="width:100%;border-radius:12px;"></video>
+
+            <div class="d-flex gap-2 mt-2">
+              <button id="startBtn" type="button" class="btn btn-danger">Start</button>
+              <button id="stopBtn" type="button" class="btn btn-outline-secondary" disabled>Stop</button>
+              <button id="closeLiveBtn" type="button" class="btn btn-link ms-auto">Panel schließen</button>
+            </div>
+          </div>
+
+        </form>
       </div>
-      <p class="mt-2 mb-0">{{ post.content }}</p>
     </div>
-  </article>
-  {% empty %}<p class="text-muted">No posts yet.</p>{% endfor %}
+
+    <!-- FEED -->
+    <div id="feedList">
+      {% for post in posts %}
+        {% include "components/post_card.html" %}
+      {% endfor %}
+    </div>
+
+    <div id="feedSentinel" class="text-center text-muted py-3">
+      <i class="bi bi-arrow-repeat me-1"></i>Mehr laden…
+    </div>
+
+  </div>
 </div>
+
+<!-- WebRTC Config -->
+<script>
+window.WEBRTC_LIVE_CONFIG = {
+  role: "broadcaster",
+  room: "{{ request.user.username }}",
+  wsBase: (location.protocol === "https:" ? "wss://" : "ws://") + location.host
+};
+window.USER_NAME = "{{ request.user.username }}";
+window.USER_AVATAR_URL = "{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% endif %}";
+</script>
+
+<!-- UI Live Feed Logic -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const panel = document.getElementById("livePanel");
+  const goBtn = document.getElementById("goLiveBtn");
+  const closeBtn = document.getElementById("closeLiveBtn");
+  const feedList = document.getElementById("feedList");
+  const composerForm = document.getElementById("postForm");
+
+  let liveItem = null;
+
+  function createLiveCard() {
+    if (!liveItem) {
+      liveItem = document.createElement("div");
+      liveItem.className = "card card-elevated mb-3";
+      liveItem.innerHTML = `
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <img src="${window.USER_AVATAR_URL}" width="40" height="40" class="rounded-circle me-2 border">
+            <div>
+              <span class="fw-semibold">@${window.USER_NAME}</span>
+              <div class="small text-danger">🔴 Live jetzt</div>
+            </div>
+          </div>
+          <div id="liveCardContent"></div>
+        </div>`;
+    }
+    return liveItem;
+  }
+
+  window.mountLiveToFeed = () => {
+    panel.style.display = "block";
+    const card = createLiveCard();
+    card.querySelector("#liveCardContent").appendChild(panel);
+    feedList.prepend(card);
+  };
+
+  window.unmountLiveFromFeed = () => {
+    composerForm.appendChild(panel);
+    panel.style.display = "none";
+    if (liveItem) liveItem.remove();
+    liveItem = null;
+  };
+
+  goBtn.addEventListener("click", window.mountLiveToFeed);
+  closeBtn.addEventListener("click", window.unmountLiveFromFeed);
+});
+</script>
+
+<!-- Bootstrap + app.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+window.CSRF_TOKEN = '{{ csrf_token }}';
+</script>
+<script src="{% static 'socialfeed/js/app.js' %}"></script>
+
 {% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-5 text-center fw-bold text-gradient">Unternehmen</h1>
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="row g-4">
+      {% for company in companies %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden transition-all hover-shadow bg-light-subtle">
+            <div class="card-body text-center p-4">
+
+              <!-- Avatar -->
+              {% if company.avatar %}
+                <img src="{{ company.avatar.url }}" 
+                     alt="{{ company.name }}"
+                     class="rounded-circle shadow-sm mb-3 avatar-border"
+                     width="100" height="100">
+              {% else %}
+                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 text-white shadow avatar-dark"
+                     style="width:100px;height:100px;font-size:40px;">
+                  {{ company.name|slice:":1"|upper }}
+                </div>
+              {% endif %}
+
+              <!-- Name -->
+              <h5 class="fw-semibold mb-2">{{ company.name }}</h5>
+
+              <!-- Meta Info -->
+              <div class="text-muted small mb-3">
+                <i class="bi bi-people"></i> {{ company.employees.count }} Mitarbeiter<br>
+                <i class="bi bi-briefcase"></i> {{ company.jobs.count }} Jobs
+              </div>
+
+              <!-- Button -->
+              <a href="{% url 'company_detail' company.id %}" class="btn btn-primary btn-sm rounded-pill px-3">
+                <i class="bi bi-info-circle me-1"></i> Mehr erfahren
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center">
+          <p class="text-muted">Noch keine Unternehmen vorhanden.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.text-gradient {
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.avatar-border {
+  border: 3px solid #f8f9fa;
+}
+.avatar-dark {
+  background: linear-gradient(135deg, #1f1f1f, #3a3a3a);
+}
+.transition-all {
+  transition: all 0.25s ease-in-out;
+}
+</style>
+{% endblock %}

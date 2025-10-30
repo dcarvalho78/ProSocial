@@ -1,0 +1,23 @@
+<ul class="list-group list-group-flush">
+  {% for n in notifications %}
+    <li class="list-group-item {% if not n.is_read %}bg-light{% endif %}">
+      <div class="d-flex align-items-start gap-2">
+        <i class="bi {% if n.notif_type == 'follow' %}bi-person-plus-fill{% elif n.notif_type == 'unfollow' %}bi-person-dash-fill{% elif n.notif_type == 'like_post' or n.notif_type == 'like_reply' %}bi-heart-fill{% elif n.notif_type == 'reply' %}bi-chat-dots-fill{% else %}bi-at{% endif %}"></i>
+        <div class="small">
+          <a href="{% url 'profile' n.actor.username %}">@{{ n.actor.username }}</a>
+          {% if n.notif_type == 'follow' %} folgt dir jetzt.
+          {% elif n.notif_type == 'unfollow' %} folgt dir nicht mehr.
+          {% elif n.notif_type == 'like_post' %} hat deinen Beitrag geliked.
+          {% elif n.notif_type == 'like_reply' %} hat deine Antwort geliked.
+          {% elif n.notif_type == 'reply' %} hat auf deinen Beitrag geantwortet.
+          {% elif n.notif_type == 'mention_post' %} hat dich in einem Beitrag erwähnt.
+          {% elif n.notif_type == 'mention_reply' %} hat dich in einer Antwort erwähnt.
+          {% endif %}
+          <div class="text-muted">{{ n.created|date:"d.m.Y H:i" }}</div>
+        </div>
+      </div>
+    </li>
+  {% empty %}
+    <li class="list-group-item small text-center text-muted">Keine Benachrichtigungen.</li>
+  {% endfor %}
+</ul>

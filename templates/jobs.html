@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Jobübersicht</h1>
+
+<!-- 🔍 Filterbereich -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form id="job-filter-form" class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <label for="job-type" class="form-label">Job-Typ</label>
+        <select id="job-type" class="form-select">
+          <option value="">Alle</option>
+          <option value="Full-time">Vollzeit</option>
+          <option value="Part-time">Teilzeit</option>
+          <option value="Contract">Freelance</option>
+          <option value="Internship">Praktikum</option>
+          <option value="Working student">Werkstudent</option>
+        </select>
+      </div>
+
+      <div class="col-md-5">
+        <label for="skills" class="form-label">Erforderliche Skills</label>
+        <select id="skills" class="form-select" multiple >
+          {% for skill in skills %}
+            <option value="{{ skill.name }}">{{ skill.name }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Mehrfachauswahl mit Strg oder Cmd</div>
+      </div>
+
+      <div class="col-md-3 d-flex align-items-end">
+        <button type="button" id="apply-filter" class="btn btn-primary w-100">Filter anwenden</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 🧾 Jobliste (AJAX ersetzt nur diesen Bereich) -->
+<div id="job-results">
+  <table class="table table-striped align-middle">
+      <thead class="table-dark">
+          <tr>
+              <th scope="col">Titel</th>
+              <th scope="col">Unternehmen</th>
+              <th scope="col">Typ</th>
+              <th scope="col">Erforderliche Fähigkeiten</th>
+              <th scope="col" class="text-center">Aktion</th>
+          </tr>
+      </thead>
+      <tbody id="job-table-body">
+          {% include "partials/job_list.html" %}
+      </tbody>
+  </table>
+</div>
+
+
+{% endblock %}

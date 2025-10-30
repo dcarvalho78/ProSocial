@@ -1,0 +1,24 @@
+{% for job in jobs %}
+<tr>
+    <td>{{ job.title }}</td>
+    <td>{{ job.company.name }}</td>
+    <td><span class="badge bg-primary">{{ job.employment_type }}</span></td>
+    <td>
+        {% for skill in job.required_skills.all %}
+            <span class="badge bg-secondary me-1">{{ skill.name }}</span>
+        {% empty %}
+            <span class="text-muted">No Skills set</span>
+        {% endfor %}
+    </td>
+    <td class="text-center">
+        <a href="#" class="btn btn-sm btn-outline-primary apply-btn" data-job-id="{{ job.id }}">
+        Bewerben
+        </a>
+
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5" class="text-center text-muted">No obs available</td>
+</tr>
+{% endfor %}
